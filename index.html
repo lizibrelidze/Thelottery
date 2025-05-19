@@ -8,7 +8,7 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background: #1a1a1a;
+            background: #003087; /* Drexel blue */
             color: #fff;
             margin: 0;
             padding: 20px;
@@ -19,10 +19,10 @@
             border-radius: 10px;
             max-width: 600px;
             margin: 20px auto;
-            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+            box-shadow: 0 0 10px rgba(255, 198, 0, 0.5); /* Drexel gold */
         }
         button {
-            background: #00ff88;
+            background: #ffc107; /* Drexel gold */
             color: #000;
             border: none;
             padding: 12px 24px;
@@ -33,7 +33,7 @@
             transition: background 0.3s;
         }
         button:hover {
-            background: #00cc66;
+            background: #e0a800;
         }
         img {
             max-width: 300px;
@@ -55,8 +55,8 @@
 </head>
 <body>
     <div id="game">
-        <p>Welcome to Crestwood College, 2025! “Challenge Week” has everyone buzzing about “The Draw,” an app for fun dares. It’s the campus tradition. <img src="campus.jpg" alt="Campus quad"></p>
-        <p>Enter your name to dive in:</p>
+        <p>Welcome to Drexel University, Welcome Week 2025! Everyone’s hyped about “DragonDare,” a viral app for CCI freshmen dares. It’s Drexel’s hottest tradition. <img src="main_quad.jpg" alt="Main Building quad"></p>
+        <p>Enter your name to jump in:</p>
         <input id="playerName" type="text" placeholder="Your name">
         <button onclick="startGame()">Start</button>
     </div>
@@ -78,66 +78,66 @@
 
         function startGame() {
             playerName = document.getElementById('playerName').value || "Player";
-            gameDiv.innerHTML = `<p>Hey, ${playerName}, you’re a freshman. At a party, Jamie says, “Everyone’s doing ‘The Draw,’ ${playerName}! It’s hilarious!” <img src="party.jpg" alt="Party"></p>
-                <p>You laugh at a bad rap video dare, but hear whispers of dares going too far.</p>
-                <button onclick="choose('join')">Join “The Draw”</button>
-                <button onclick="choose('ask')">Ask if anyone’s gotten hurt</button>
-                <button onclick="choose('no')">Say no, it’s risky</button>`;
+            gameDiv.innerHTML = `<p>Hey, ${playerName}, you’re a CCI freshman. In Rush Building, Jamie says, “DragonDare’s epic, ${playerName}! You in?” <img src="rush_building.jpg" alt="Rush Building"></p>
+                <p>You laugh at a dare where someone swiped their DragonCard at the DAC for a TikTok, but rumors say dares can tank co-op interviews.</p>
+                <button onclick="choose('join')">Join DragonDare</button>
+                <button onclick="choose('ask')">Ask if dares hurt co-op chances</button>
+                <button onclick="choose('no')">Say no, it could mess with your rep</button>`;
             playSound('notify');
         }
 
         function choose(choice) {
             playSound(choice.includes('bad') || choice.includes('neutral') ? 'crowd' : 'notify');
             if (choice === 'join') {
-                gameDiv.innerHTML = `<p>You join “The Draw,” and it’s a blast! You draw Sam. The app says, “Make Sam sing off-key in public.” Jamie cheers, “Post it, ${playerName}!” <img src="app.jpg" alt="App"></p>
-                    <p>Notification: “100 likes for the last dare!” It feels fun.</p>
+                gameDiv.innerHTML = `<p>You join DragonDare, and it’s a rush! You draw Sam, a CCI classmate. The app says, “Make Sam post a video coding a bad app in public.” Jamie cheers, “Do it, ${playerName}!” <img src="dragondare.jpg" alt="DragonDare app"></p>
+                    <p>Notification: “200 likes for the last dare!” You’re all in.</p>
                     <button onclick="choose('post')">Post the dare</button>
                     <button onclick="choose('warn')">Warn Sam</button>
                     <button onclick="choose('skip')">Skip the dare</button>`;
             } else if (choice === 'ask') {
-                gameDiv.innerHTML = `<p>Jamie says, “It’s just fun!” But you hear a student quit after a bad dare. The party’s loud. <img src="party.jpg" alt="Party"></p>
-                    <button onclick="choose('join')">Join “The Draw”</button>
-                    <button onclick="choose('group')">Start a group against peer pressure</button>
+                gameDiv.innerHTML = `<p>Jamie says, “Nobody’s lost a co-op over DragonDare!” But you hear a student dropped out after a viral dare. The Rush classroom buzzes. <img src="rush_classroom.jpg" alt="Rush Building"></p>
+                    <button onclick="choose('join')">Join DragonDare</button>
+                    <button onclick="choose('group')">Start a CCI group against peer pressure</button>
                     <button onclick="choose('walk')">Walk away</button>`;
             } else if (choice === 'no') {
-                gameDiv.innerHTML = `<p>You skip “The Draw,” and Jamie’s annoyed. A week later, a classmate’s dare goes viral, and they’re devastated. <img src="campus.jpg" alt="Campus"></p>
+                gameDiv.innerHTML = `<p>You skip DragonDare, and Jamie’s annoyed. At Welcome Week’s DAC party, a classmate’s dare goes viral, and they’re crushed. <img src="main_quad.jpg" alt="Main Building quad"></p>
                     <button onclick="choose('join')">Join to fit in</button>
-                    <button onclick="choose('warnOthers')">Warn others it’s harmful</button>`;
+                    <button onclick="choose('warnOthers')">Warn CCI peers</button>`;
             } else if (choice === 'post') {
-                gameDiv.innerHTML = `<p>Sam’s video goes viral: “Worst singer!” He stops showing up. You get a “Top Player” badge. Then, *your* name’s drawn: “Post a dorky outfit photo.” <img src="feed.jpg" alt="Feed"></p>
-                    <p>You loved “The Draw” until now.</p>
-                    <button onclick="choose('postPhoto')">Post the photo</button>
-                    <button onclick="choose('callOut')">Call out the app</button>
-                    <button onclick="choose('fake')">Fake the photo</button>`;
+                gameDiv.innerHTML = `<p>Sam’s video goes viral on Drexel’s X feed: “Worst coder!” He skips CS171. You earn a “Dare Dragon” badge. Then, *your* name’s drawn: “Post a video in nerdy Drexel merch.” <img src="drexel_feed.jpg" alt="Feed"></p>
+                    <p>Your co-op dreams flash—you loved DragonDare until now.</p>
+                    <button onclick="choose('postVideo')">Post the video</button>
+                    <button onclick="choose('callOut')">Post on X that DragonDare’s toxic</button>
+                    <button onclick="choose('fake')">Fake the video with a meme</button>`;
             } else if (choice === 'warn') {
-                gameDiv.innerHTML = `<p>Sam thanks you. Another student’s dare gets 500 likes, but they’re crying in the comments. Jamie says, “Don’t overthink it!” <img src="app.jpg" alt="App"></p>
+                gameDiv.innerHTML = `<p>Sam thanks you. Another student’s dare gets 500 likes, but they’re roasted online. Jamie says, “It’s CCI fun!” <img src="dragondare.jpg" alt="DragonDare app"></p>
                     <button onclick="choose('postNew')">Post a new dare</button>
-                    <button onclick="choose('expose')">Expose the app</button>
-                    <button onclick="choose('prof')">Report to a professor</button>`;
+                    <button onclick="choose('expose')">Expose DragonDare on X</button>
+                    <button onclick="choose('prof')">Report to a CCI professor</button>`;
             } else if (choice === 'skip') {
-                gameDiv.innerHTML = `<p>You skip Sam’s dare, but “The Draw” pulls you back. Your dare: “Post a silly rap video.” Jamie: “You can’t back out!” <img src="app.jpg" alt="App"></p>
-                    <button onclick="choose('rap')">Post the rap</button>
-                    <button onclick="choose('quit')">Quit and tell friends</button>
+                gameDiv.innerHTML = `<p>You skip Sam’s dare, but DragonDare pulls you back. Your dare: “Post a video dancing at the DAC.” Jamie: “Show Drexel pride!” <img src="dragondare.jpg" alt="DragonDare app"></p>
+                    <button onclick="choose('dance')">Post the dance video</button>
+                    <button onclick="choose('quit')">Quit and tell CCI friends</button>
                     <button onclick="choose('ignore')">Ignore it</button>`;
-            } else if (choice === 'postPhoto' || choice === 'rap') {
-                gameDiv.innerHTML = `<p>Your post’s mocked across campus: “Loser!” Friends ditch you. <img src="feed.jpg" alt="Feed"></p>
-                    <p><strong>Bad Ending:</strong> You, ${playerName}, loved ‘The Draw’ until it hit you, like Tessie in *The Lottery*. What ‘lotteries’ do you ignore?</p>`;
+            } else if (choice === 'postVideo' || choice === 'dance') {
+                gameDiv.innerHTML = `<p>Your video’s mocked across Drexel: “Dork alert!” Recruiters see it, and co-op apps tank. <img src="drexel_feed.jpg" alt="Feed"></p>
+                    <p><strong>Bad Ending:</strong> You, ${playerName}, loved DragonDare until it hit you, like Tessie in *The Lottery*. What Drexel ‘lotteries’ do you ignore?</p>`;
             } else if (choice === 'callOut' || choice === 'expose' || choice === 'group' || choice === 'warnOthers' || choice === 'quit') {
-                gameDiv.innerHTML = `<p>You post, “The Draw’s toxic!” A campus protest shuts it down. <img src="protest.jpg" alt="Protest"></p>
-                    <p><strong>Good Ending:</strong> You, ${playerName}, spoke up late but stopped the trend! What ‘lotteries’ will you challenge?</p>`;
+                gameDiv.innerHTML = `<p>Your X post, “DragonDare’s bullying!” sparks a protest by the Mario statue. CCI bans the app. <img src="mario_protest.jpg" alt="Protest"></p>
+                    <p><strong>Good Ending:</strong> You, ${playerName}, spoke up late but saved Drexel’s vibe! What ‘lotteries’ will you challenge?</p>`;
             } else if (choice === 'fake' || choice === 'ignore') {
-                gameDiv.innerHTML = `<p>Your post gets laughs, but Sam’s gone. You keep your rep but feel guilty. <img src="feed.jpg" alt="Feed"></p>
-                    <p><strong>Neutral Ending:</strong> You, ${playerName}, stayed quiet, like the village. What now?</p>`;
+                gameDiv.innerHTML = `<p>Your meme video gets laughs, but Sam’s gone. You keep your co-op rep but feel guilty. <img src="drexel_feed.jpg" alt="Feed"></p>
+                    <p><strong>Neutral Ending:</strong> You, ${playerName}, stayed quiet, like Drexel’s village. What now?</p>`;
             } else if (choice === 'prof' || choice === 'walk') {
-                gameDiv.innerHTML = `<p>The professor bans the app quietly. Some call you a snitch, others are grateful. <img src="campus.jpg" alt="Campus"></p>
-                    <p><strong>Neutral Ending:</strong> You, ${playerName}, acted late, like Tessie’s protest. What will you challenge openly?</p>`;
+                gameDiv.innerHTML = `<p>The professor bans DragonDare quietly. Some call you a snitch, others thank you. <img src="main_quad.jpg" alt="Main Building quad"></p>
+                    <p><strong>Neutral Ending:</strong> You, ${playerName}, acted late, like Tessie’s protest. What Drexel trends will you challenge?</p>`;
             } else if (choice === 'postNew') {
-                gameDiv.innerHTML = `<p>Your dare humiliates Mia. Then, *your* name’s drawn: “Confess your biggest fear.” <img src="feed.jpg" alt="Feed"></p>
-                    <button onclick="choose('postFear')">Post the video</button>
-                    <button onclick="choose('callOut')">Quit and call out the app</button>`;
-            } else if (choice === 'postFear') {
-                gameDiv.innerHTML = `<p>Your video’s a campus joke. You’re shunned, regretting every dare. <img src="feed.jpg" alt="Feed"></p>
-                    <p><strong>Bad Ending:</strong> You, ${playerName}, fueled ‘The Draw’ until it burned you, like Tessie. What ‘lotteries’ do you fuel?</p>`;
+                gameDiv.innerHTML = `<p>Your dare humiliates Mia. Then, *your* name’s drawn: “Confess your worst co-op interview fail.” <img src="drexel_feed.jpg" alt="Feed"></p>
+                    <button onclick="choose('postFail')">Post the video</button>
+                    <button onclick="choose('callOut')">Quit and call out DragonDare</button>`;
+            } else if (choice === 'postFail') {
+                gameDiv.innerHTML = `<p>Your video’s a campus joke. CCI peers shun you, and co-op offers dry up. <img src="drexel_feed.jpg" alt="Feed"></p>
+                    <p><strong>Bad Ending:</strong> You, ${playerName}, fueled DragonDare until it burned you, like Tessie. What ‘lotteries’ do you fuel?</p>`;
             }
         }
     </script>
