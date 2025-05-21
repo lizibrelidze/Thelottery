@@ -3,262 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DragonDare: Drexel's Viral Challenge</title>
+    <title>The Lottery: Escape the Trend</title>
     <script src="/socket.io/socket.io.js"></script>
     <style>
-        :root {
-            --drexel-blue: #003087;
-            --drexel-gold: #ffc107;
-            --dark-blue: #001a4d;
-        }
-        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--drexel-blue);
-            color: white;
-            background-image: linear-gradient(to bottom, var(--dark-blue), var(--drexel-blue));
-            min-height: 100vh;
-        }
-        
-        .header {
-            padding: 20px 0;
+            font-family: Arial, sans-serif;
             text-align: center;
-            background-color: rgba(0, 0, 0, 0.4);
-        }
-        
-        .logo {
-            max-width: 200px;
-            margin-bottom: 10px;
-        }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
+            background: #003087; /* Drexel blue */
+            color: #fff;
+            margin: 0;
             padding: 20px;
         }
-        
-        .card {
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            margin-bottom: 25px;
-            border: 2px solid rgba(255, 193, 7, 0.3);
+        #game {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 600px;
+            margin: 20px auto;
+            box-shadow: 0 0 10px rgba(255, 198, 0, 0.5); /* Drexel gold */
         }
-        
-        h1, h2, h3 {
-            color: var(--drexel-gold);
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        #playersList {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 600px;
+            margin: 20px auto;
+            box-shadow: 0 0 10px rgba(255, 198, 0, 0.5);
         }
-        
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-        
-        p {
-            font-size: 18px;
-            line-height: 1.6;
-        }
-        
         button {
-            background-color: var(--drexel-gold);
-            color: var(--drexel-blue);
+            background: #ffc107; /* Drexel gold */
+            color: #000;
             border: none;
             padding: 12px 24px;
-            margin: 10px 5px;
+            margin: 10px;
             cursor: pointer;
-            border-radius: 50px;
+            border-radius: 5px;
             font-size: 16px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s;
         }
-        
         button:hover {
-            background-color: #e0a800;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+            background: #e0a800;
         }
-        
-        input {
-            padding: 12px 20px;
-            margin: 10px 0;
-            border-radius: 50px;
-            border: 2px solid var(--drexel-gold);
-            font-size: 16px;
-            width: 80%;
+        img {
             max-width: 300px;
-            background-color: rgba(255, 255, 255, 0.9);
+            margin: 10px;
+            border-radius: 5px;
         }
-        
+        input {
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+        }
+        p {
+            font-size: 18px;
+            line-height: 1.5;
+        }
         .selected {
-            color: var(--drexel-gold);
+            color: #ffc107;
             font-weight: bold;
         }
-        
         .waiting {
             font-style: italic;
             color: #cccccc;
         }
-        
         #countdown {
-            font-size: 32px;
+            font-size: 24px;
             font-weight: bold;
-            color: var(--drexel-gold);
-            margin: 20px 0;
-            text-shadow: 0 0 10px rgba(255, 193, 7, 0.7);
-        }
-        
-        .campus-img {
-            width: 100%;
-            max-width: 700px;
-            border-radius: 10px;
-            margin: 15px 0;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            border: 3px solid var(--drexel-gold);
-        }
-        
-        .player-list {
-            list-style-type: none;
-            padding: 0;
-            text-align: left;
-        }
-        
-        .player-list li {
-            padding: 8px 15px;
-            margin: 5px 0;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .player-list li::before {
-            content: "🐉";
-            margin-right: 10px;
-        }
-        
-        .images-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            margin: 20px 0;
-        }
-        
-        .drexel-img {
-            width: 30%;
-            min-width: 200px;
-            border-radius: 10px;
-            border: 2px solid var(--drexel-gold);
-            transition: transform 0.3s ease;
-        }
-        
-        .drexel-img:hover {
-            transform: scale(1.05);
-        }
-        
-        .game-progress {
-            height: 10px;
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 5px;
-            margin: 20px 0;
-            overflow: hidden;
-        }
-        
-        .progress-bar {
-            height: 100%;
-            background-color: var(--drexel-gold);
-            width: 0%;
-            transition: width 0.5s ease;
-        }
-        
-        @media (max-width: 600px) {
-            .container {
-                padding: 10px;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .drexel-img {
-                width: 45%;
-            }
+            color: #ffc107;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <img src="/assets/drexelLogo.jpg" alt="Drexel University Logo" class="logo">
-        <h1>DragonDare</h1>
-        <p>Drexel's Ultimate Freshman Challenge</p>
+    <div id="game">
+        <p>Welcome to Drexel University, Welcome Week 2025! Everyone's hyped about "DragonDare," a viral app for CCI freshmen dares. It's Drexel's hottest tradition.</p>
+        <div id="joinSection">
+            <p>Enter your name to join the game:</p>
+            <input id="playerName" type="text" placeholder="Your name">
+            <button id="joinButton">Join Game</button>
+        </div>
+        <div id="waitingSection" style="display: none;">
+            <p class="waiting">Waiting for more players to join...</p>
+            <p>Players: <span id="playerCount">0</span>/<span id="requiredPlayers">3</span></p>
+            <div id="countdown" style="display: none;"></div>
+        </div>
     </div>
     
-    <div class="container">
-        <div class="card">
-            <h2>Welcome to Drexel University, 2025!</h2>
-            <p>Everyone's hyped about "DragonDare," the viral app sweeping through CCI freshmen. Take on daring challenges, make new friends, and become a Drexel legend during Welcome Week!</p>
-            
-            <div class="images-container">
-                <img src="/assets/drexelStatue.jpg" alt="Drexel Dragon Statue" class="drexel-img">
-                <img src="/assets/drexelMainbuilding.jpg" alt="Drexel Main Building" class="drexel-img">
-                <img src="/assets/drexelCampuslife.jpg" alt="Drexel Campus Life" class="drexel-img">
-            </div>
-            
-            <div id="joinSection">
-                <h3>Ready to Join the Challenge?</h3>
-                <p>Enter your DragonTag to join the game:</p>
-                <input id="playerName" type="text" placeholder="Your name">
-                <button id="joinButton">Join the Dare</button>
-            </div>
-            
-            <div id="waitingSection" style="display: none;">
-                <h3>Gathering Dragon Daredevils...</h3>
-                <p class="waiting">Waiting for more players to join the challenge!</p>
-                <div class="game-progress">
-                    <div class="progress-bar" id="playerProgress"></div>
-                </div>
-                <p>Players: <span id="playerCount">0</span>/<span id="requiredPlayers">3</span></p>
-                <div id="countdown" style="display: none;"></div>
-                <img src="/assets/drexelPanorama.jpg" alt="Drexel Campus Panorama" class="campus-img">
-            </div>
-        </div>
-        
-        <div id="playersList" class="card" style="display: none;">
-            <h3>Dragon Challengers</h3>
-            <ul id="players" class="player-list"></ul>
-        </div>
+    <div id="playersList" style="display: none;">
+        <h3>Connected Players</h3>
+        <ul id="players"></ul>
     </div>
     
     <audio id="notify" src="notify.mp3"></audio>
     <audio id="crowd" src="crowd.mp3"></audio>
     
-    <script>
-        // Basic script to show the waiting section when joining
-        document.getElementById('joinButton').addEventListener('click', function() {
-            const name = document.getElementById('playerName').value;
-            if (name.trim() !== '') {
-                document.getElementById('joinSection').style.display = 'none';
-                document.getElementById('waitingSection').style.display = 'block';
-                document.getElementById('playersList').style.display = 'block';
-                
-                // Mock adding the player to the list
-                const playersList = document.getElementById('players');
-                const playerItem = document.createElement('li');
-                playerItem.textContent = name + " (You)";
-                playersList.appendChild(playerItem);
-                
-                // Update player count
-                document.getElementById('playerCount').textContent = '1';
-                
-                // Update progress bar
-                document.getElementById('playerProgress').style.width = '33%';
-            }
-        });
-    </script>
+    <script src="game.js"></script>
 </body>
 </html>
