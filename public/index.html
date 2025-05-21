@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Lottery: Escape the Trend</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #003087; /* Drexel blue */
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+        #game {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 600px;
+            margin: 20px auto;
+            box-shadow: 0 0 10px rgba(255, 198, 0, 0.5); /* Drexel gold */
+        }
+        #playersList {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 600px;
+            margin: 20px auto;
+            box-shadow: 0 0 10px rgba(255, 198, 0, 0.5);
+        }
+        button {
+            background: #ffc107; /* Drexel gold */
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #e0a800;
+        }
+        img {
+            max-width: 300px;
+            margin: 10px;
+            border-radius: 5px;
+        }
+        input {
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+        }
+        p {
+            font-size: 18px;
+            line-height: 1.5;
+        }
+        .selected {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        .waiting {
+            font-style: italic;
+            color: #cccccc;
+        }
+        #countdown {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <p>Welcome to Drexel University, Welcome Week 2025! Everyone's hyped about "DragonDare," a viral app for CCI freshmen dares. It's Drexel's hottest tradition.</p>
+        <div id="joinSection">
+            <p>Enter your name to join the game:</p>
+            <input id="playerName" type="text" placeholder="Your name">
+            <button id="joinButton">Join Game</button>
+        </div>
+        <div id="waitingSection" style="display: none;">
+            <p class="waiting">Waiting for more players to join...</p>
+            <p>Players: <span id="playerCount">0</span>/<span id="requiredPlayers">3</span></p>
+            <div id="countdown" style="display: none;"></div>
+        </div>
+    </div>
+    
+    <div id="playersList" style="display: none;">
+        <h3>Connected Players</h3>
+        <ul id="players"></ul>
+    </div>
+    
+    <audio id="notify" src="notify.mp3"></audio>
+    <audio id="crowd" src="crowd.mp3"></audio>
+    
+    <script src="game.js"></script>
+</body>
+</html>
