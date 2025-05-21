@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DragonDare: Drexel's Viral Challenge</title>
     <script src="/socket.io/socket.io.js"></script>
-     <style>
+    <style>
         :root {
             --drexel-blue: #003087;
             --drexel-gold: #ffc107;
@@ -199,14 +199,14 @@
     </div>
     
     <div class="container">
-        <div class="card">
+        <div class="card" id="game">
             <h2>Welcome to Drexel University, 2025!</h2>
             <p>Everyone's hyped about "DragonDare," the viral app sweeping through CCI freshmen. Take on daring challenges, make new friends, and become a Drexel legend during Welcome Week!</p>
             
             <div class="images-container">
                 <img src="/assets/drexelStatue.jpg" alt="Drexel Dragon Statue" class="drexel-img">
                 <img src="/assets/drexelMainbuilding.jpg" alt="Drexel Main Building" class="drexel-img">
-                <img src="/assets/drexelCampuslife.jpg " alt = "Drexel Campus Life" class="drexel-img">
+                <img src="/assets/drexelCampuslife.jpg" alt="Drexel Campus Life" class="drexel-img">
             </div>
             
             <div id="joinSection">
@@ -233,6 +233,10 @@
             <ul id="players" class="player-list"></ul>
         </div>
     </div>
- <script src="game.js"></script>
+    
+    <audio id="notify" src="notify.mp3"></audio>
+    <audio id="crowd" src="crowd.mp3"></audio>
+    
+    <script src="game.js"></script>
 </body>
 </html>
