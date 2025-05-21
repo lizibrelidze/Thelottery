@@ -36,9 +36,28 @@ function setupGameHandlers(io) {
             });
         });
 
-        socket.on('disconnect', () => {
-            console.log('Disconnected:', socket.id);
-            // Optional: handle cleanup
+       socket.on('disconnect', () => {
+    console.log('Disconnected:', socket.id);
+
+    // Optionally, remove player by socket ID mapping if you store it
+    // Or if you want to remove by playerName, you should track player names per socket
+
+    // For example:
+    // find and remove player associated with this socket from players array
+
+    // Then emit updated player list:
+    io.emit('playerUpdate', {
+        players,
+        count: players.length,
+        required: requiredPlayersToStart,
+    });
+});
+        socket.on('resetGame', () => {
+            players = [];
+            selectedPlayer = null;
+            gameStarted = false;
+
+            io.emit('gameReset');
         });
     });
 }

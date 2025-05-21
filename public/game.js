@@ -91,24 +91,41 @@ socket.on('gameUpdate', (data) => {
 // Update the displayed list of connected players
 function updatePlayersList() {
     playersUl.innerHTML = '';
-    allPlayers.forEach(player => {
+    allPlayers.forEach(p => {
         const li = document.createElement('li');
-        if (player === selectedPlayer && isGameStarted) {
-            li.className = 'selected';
-            li.textContent = `${player} (Selected)`;
-        } else {
-            li.textContent = player;
+        li.textContent = p;
+        
+        if (p === playerName) {
+            li.textContent += ' (You)';
+            li.style.fontWeight = 'bold';
+            li.style.color = 'var(--drexel-gold)';
         }
+        
+        if (p === selectedPlayer) {
+            li.classList.add('selected');
+            li.textContent += ' 🐉 Selected';
+        }
+        
         playersUl.appendChild(li);
     });
+
+    // Update progress bar according to players count
+    const percent = Math.min(100, (allPlayers.length / Number(requiredPlayers.textContent)) * 100);
+    document.getElementById('playerProgress').style.width = percent + '%';
 }
+
 
 // Start the game
 function startGame() {
     isGameStarted = true;
-    waitingSection.style.display = 'none';
     countdown.style.display = 'none';
-    
+
+    // Optionally hide join controls or disable input
+    playerNameInput.disabled = true;
+    joinButton.disabled = true;
+
+    // Show a message or enable game interaction here
+    alert(`Game started! Selected player is ${selectedPlayer}.`);
     // Determine if the current player is the selected one
     const isSelected = playerName === selectedPlayer;
     const messagePrefix = isSelected ? "YOU HAVE BEEN SELECTED! " : "";
@@ -193,12 +210,29 @@ function choose(choice) {
     }
 }
 
-// Get a random player except the current one
-function getRandomPlayerExcept(exceptName) {
-    const availablePlayers = allPlayers.filter(name => name !== exceptName);
-    if (availablePlayers.length === 0) return "Another student";
-    return availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
-}
+const playerSockets = {}; // socket.id -> playerName
+
+socket.on('playerJoin', (playerName) => {
+    if (!players.includes(playerName)) {
+        players.push(playerName);
+        playerSockets[socket.id] = playerName;
+    }
+    // ...
+});
+
+socket.on('disconnect', () => {
+    const playerName = playerSockets[socket.id];
+    if (playerName) {
+        players = players.filter(p => p !== playerName);
+        delete playerSockets[socket.id];
+    }
+    io.emit('playerUpdate', {
+        players,
+        count: players.length,
+        required: requiredPlayersToStart,
+    });
+});
+
 
 // Reset the game
 function resetGame() {
