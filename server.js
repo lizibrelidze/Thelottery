@@ -13,7 +13,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Game state
 let players = [];
-const REQUIRED_PLAYERS = 3;
+const REQUIRED_PLAYERS = 5;
+let gameInProgress = false;
+let currentSelectedPlayer = null;
 
 // Socket.io connection handling
 io.on('connection', (socket) => {
@@ -21,9 +23,17 @@ io.on('connection', (socket) => {
 
     // When a player joins
     socket.on('playerJoin', (playerName) => {
+        // Check if name already exists
+        if (players.find(p => p.name === playerName)) {
+            socket.emit('nameError', 'Name already taken!');
+            return;
+        }
+
         const player = {
             id: socket.id,
-            name: playerName
+            name: playerName,
+            points: 100, // Start with 100 points
+            status: 'waiting'
         };
         
         players.push(player);
@@ -31,25 +41,50 @@ io.on('connection', (socket) => {
         
         // Broadcast updated player list to all clients
         io.emit('playerUpdate', {
-            players: players.map(p => p.name),
+            players: players,
             count: players.length,
             required: REQUIRED_PLAYERS
         });
         
         // Start game if we have enough players
-        if (players.length >= REQUIRED_PLAYERS) {
-            // Select a random player for "the lottery"
-            const selectedPlayerIndex = Math.floor(Math.random() * players.length);
-            const selectedPlayer = players[selectedPlayerIndex];
-            
-            console.log(`Game starting! Selected player: ${selectedPlayer.name}`);
-            
-            // Let everyone know the game is starting
-            io.emit('gameStart', {
-                players: players.map(p => p.name),
-                selectedPlayer: selectedPlayer.name
-            });
+        if (players.length >= REQUIRED_PLAYERS && !gameInProgress) {
+            gameInProgress = true;
+            startNewRound();
         }
+    });
+
+    // Handle dare response
+    socket.on('dareResponse', (data) => {
+        const player = players.find(p => p.name === data.playerName);
+        if (!player || player.name !== currentSelectedPlayer) return;
+
+        if (data.accepted) {
+            player.points += 100;
+            player.status = 'brave';
+            console.log(`${player.name} accepted the dare! +100 points`);
+        } else {
+            player.points -= 50;
+            player.status = 'scared';
+            console.log(`${player.name} rejected the dare! -50 points`);
+        }
+
+        // Broadcast the result
+        io.emit('dareResult', {
+            player: player.name,
+            accepted: data.accepted,
+            points: player.points,
+            status: player.status
+        });
+
+        // Update leaderboard
+        io.emit('leaderboardUpdate', {
+            players: players.sort((a, b) => b.points - a.points)
+        });
+
+        // Start next round after 3 seconds
+        setTimeout(() => {
+            startNewRound();
+        }, 3000);
     });
 
     // Handle disconnection
@@ -59,24 +94,71 @@ io.on('connection', (socket) => {
             console.log(`${players[index].name} disconnected`);
             players.splice(index, 1);
             
+            // Reset game if not enough players
+            if (players.length < REQUIRED_PLAYERS) {
+                gameInProgress = false;
+                currentSelectedPlayer = null;
+            }
+            
             // Update remaining players
             io.emit('playerUpdate', {
-                players: players.map(p => p.name),
+                players: players,
                 count: players.length,
                 required: REQUIRED_PLAYERS
+            });
+
+            // Update leaderboard
+            io.emit('leaderboardUpdate', {
+                players: players.sort((a, b) => b.points - a.points)
             });
         }
     });
 
-    // Game choice made by a player
+    // Game choice made by a player (keep for story progression)
     socket.on('playerChoice', (data) => {
-        // Broadcast the choice to all players
         io.emit('gameUpdate', {
             player: data.playerName,
             choice: data.choice
         });
     });
 });
+
+// Function to start a new dare round
+function startNewRound() {
+    if (players.length < REQUIRED_PLAYERS) {
+        gameInProgress = false;
+        return;
+    }
+
+    // Select a random player for the dare
+    const selectedPlayerIndex = Math.floor(Math.random() * players.length);
+    currentSelectedPlayer = players[selectedPlayerIndex].name;
+    
+    console.log(`New round! Selected player: ${currentSelectedPlayer}`);
+    
+    // Generate random dare
+    const dares = [
+        "Post a video of yourself doing the Drexel Dragon dance in the DAC!",
+        "Sing the Drexel Fight Song in front of the Mario statue!",
+        "Wear a ridiculous costume to your next CCI class!",
+        "Post a TikTok of yourself coding while doing jumping jacks!",
+        "Do 20 push-ups in the Rush Building lobby!",
+        "Record yourself giving a dramatic speech about why pineapple belongs on pizza!",
+        "Wear your clothes backwards for the entire day!",
+        "Post a video of yourself attempting to breakdance!",
+        "Sing 'Happy Birthday' to a random stranger on campus!",
+        "Do the 'floss' dance in front of the Drexel library!"
+    ];
+    
+    const randomDare = dares[Math.floor(Math.random() * dares.length)];
+    
+    // Send dare to all players
+    io.emit('newDare', {
+        selectedPlayer: currentSelectedPlayer,
+        dare: randomDare,
+        players: players.sort((a, b) => b.points - a.points)
+    });
+}
 
 // Start the server
 const PORT = process.env.PORT || 3000;
