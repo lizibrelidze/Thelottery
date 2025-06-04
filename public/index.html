@@ -12,6 +12,7 @@
             --dark-blue: #001a4d;
             --success-green: #28a745;
             --danger-red: #dc3545;
+            --eliminated-gray: #6c757d;
         }
         
         body {
@@ -153,6 +154,25 @@
             font-size: 1.2em;
         }
         
+        .eliminated {
+            color: var(--eliminated-gray);
+            font-weight: bold;
+            font-size: 1.2em;
+            text-decoration: line-through;
+        }
+        
+        .eliminated-banner {
+            background: linear-gradient(135deg, var(--eliminated-gray), #495057);
+            border: 3px solid var(--danger-red);
+            animation: fadeOut 3s ease-in-out;
+        }
+        
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: scale(1.05); }
+            50% { opacity: 0.8; transform: scale(1); }
+            100% { opacity: 0.9; transform: scale(0.98); }
+        }
+        
         #countdown {
             font-size: 32px;
             font-weight: bold;
@@ -187,10 +207,21 @@
             border-left: 4px solid var(--drexel-gold);
         }
         
+        .player-list li.eliminated, .leaderboard-list li.eliminated {
+            background-color: rgba(108, 117, 125, 0.2);
+            border-left-color: var(--eliminated-gray);
+            opacity: 0.6;
+        }
+        
         .leaderboard-list li.my-rank {
             background-color: rgba(255, 193, 7, 0.2);
             border-left-color: var(--drexel-gold);
             font-weight: bold;
+        }
+        
+        .leaderboard-list li.my-rank.eliminated {
+            background-color: rgba(108, 117, 125, 0.3);
+            border-left-color: var(--eliminated-gray);
         }
         
         .player-name {
@@ -200,6 +231,10 @@
         .player-points {
             font-weight: bold;
             color: var(--drexel-gold);
+        }
+        
+        .player-points.eliminated {
+            color: var(--eliminated-gray);
         }
         
         .player-status {
@@ -245,6 +280,12 @@
             margin-top: 20px;
         }
         
+        .spectator-section {
+            background: linear-gradient(135deg, var(--eliminated-gray), #495057);
+            border: 3px solid var(--eliminated-gray);
+            opacity: 0.8;
+        }
+        
         @media (max-width: 768px) {
             .container {
                 grid-template-columns: 1fr;
@@ -279,6 +320,7 @@
                 <h2>Welcome to Drexel University, 2025!</h2>
                 <p>Everyone's hyped about "DragonDare," the viral app sweeping through CCI freshmen. Take on daring challenges, earn points, and climb the leaderboard during Welcome Week!</p>
                 <p><strong>🎯 Starting Points: 100 | Accept Dare: +100 | Reject Dare: -50 🎯</strong></p>
+                <p><strong>⚠️ Reach 0 points and you're ELIMINATED! ⚠️</strong></p>
                 
                 <div id="joinSection">
                     <h3>Ready to Join the Challenge?</h3>
@@ -293,8 +335,8 @@
                     <div class="game-progress">
                         <div class="progress-bar" id="playerProgress"></div>
                     </div>
-                    <p>Players: <span id="playerCount">0</span>/<span id="requiredPlayers">5</span></p>
-                    <p><em>Need 5 brave souls to start the ultimate DragonDare experience!</em></p>
+                    <p>Players: <span id="playerCount">0</span>/<span id="requiredPlayers">7</span> (Max: 10)</p>
+                    <p><em>Need at least 7 brave souls to start the ultimate DragonDare experience!</em></p>
                     <div id="countdown" style="display: none;"></div>
                     <img src="/assets/drexelPanorama.jpg" alt="Drexel Campus Panorama" class="campus-img">
                 </div>
@@ -310,6 +352,14 @@
                     <button id="acceptDare" class="accept">✅ Accept Dare (+100 pts)</button>
                     <button id="rejectDare" class="reject">❌ Reject Dare (-50 pts)</button>
                 </div>
+            </div>
+            
+            <div id="spectatorSection" class="card spectator-section" style="display: none;">
+                <h2>📺 SPECTATOR MODE 📺</h2>
+                <p class="eliminated">You've been eliminated from DragonDare!</p>
+                <p>You reached 0 points, but you can still watch the remaining players compete!</p>
+                <p><em>Cheer on your fellow Dragons and see who becomes the ultimate DragonDare champion!</em></p>
+                <button id="spectateButton" onclick="resetGame()">Start New Game</button>
             </div>
             
             <div id="dareResult" class="card" style="display: none;">
@@ -333,6 +383,7 @@
     
     <audio id="notify" src="notify.mp3"></audio>
     <audio id="crowd" src="crowd.mp3"></audio>
+    <audio id="eliminated" src="eliminated.mp3"></audio>
     
     <script src="game.js"></script>
 </body>
