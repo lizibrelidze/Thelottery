@@ -153,6 +153,22 @@
             font-size: 1.2em;
         }
         
+        .eliminated {
+            color: #ff4500;
+            font-weight: bold;
+            font-size: 1.4em;
+            text-shadow: 0 0 10px rgba(255, 69, 0, 0.7);
+            animation: shake 0.5s;
+        }
+        
+        .winner {
+            color: var(--drexel-gold);
+            font-weight: bold;
+            font-size: 1.4em;
+            text-shadow: 0 0 10px rgba(255, 193, 7, 0.7);
+            animation: pulse 2s infinite;
+        }
+        
         #countdown {
             font-size: 32px;
             font-weight: bold;
@@ -238,6 +254,12 @@
             100% { box-shadow: 0 0 20px rgba(255, 193, 7, 0.5); }
         }
         
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
         .dare-buttons {
             display: flex;
             gap: 20px;
@@ -269,16 +291,16 @@
 <body>
     <div class="header">
         <img src="/assets/drexelLogo.jpg" alt="Drexel University Logo" class="logo">
-        <h1>DragonDare</h1>
-        <p>Drexel's Ultimate Freshman Challenge - Now with Points & Leaderboard!</p>
+        <h1>DragonDare: Cancel Culture Edition</h1>
+        <p>Drexel's Ultimate Freshman Challenge - Survive the Social Media Storm!</p>
     </div>
     
     <div class="container">
         <div class="main-content">
             <div class="card" id="game">
                 <h2>Welcome to Drexel University, 2025!</h2>
-                <p>Everyone's hyped about "DragonDare," the viral app sweeping through CCI freshmen. Take on daring challenges, earn points, and climb the leaderboard during Welcome Week!</p>
-                <p><strong>🎯 Starting Points: 100 | Accept Dare: +100 | Reject Dare: -50 🎯</strong></p>
+                <p>Everyone's hyped about "DragonDare," the viral app sweeping through CCI freshmen. Take on daring challenges, earn points, and avoid being canceled! Reach 0 points, and you're out with a viral shaming!</p>
+                <p><strong>🎯 Starting Points: 100 | Accept Dare: +100 | Reject Dare: -50 | Reach 0: CANCELED! 🎯</strong></p>
                 
                 <div id="joinSection">
                     <h3>Ready to Join the Challenge?</h3>
@@ -305,7 +327,7 @@
                 <p class="selected">You've been selected, <span id="selectedPlayerName"></span>!</p>
                 <p><strong>Your Dare:</strong></p>
                 <p id="currentDare" style="font-size: 1.1em; font-weight: bold; margin: 20px 0;"></p>
-                <p>Accept for +100 points or reject and lose 50 points!</p>
+                <p>Accept for +100 points or reject and lose 50 points! Reach 0, and face the wrath of the internet!</p>
                 <div class="dare-buttons">
                     <button id="acceptDare" class="accept">✅ Accept Dare (+100 pts)</button>
                     <button id="rejectDare" class="reject">❌ Reject Dare (-50 pts)</button>
@@ -333,6 +355,7 @@
     
     <audio id="notify" src="notify.mp3"></audio>
     <audio id="crowd" src="crowd.mp3"></audio>
+    <audio id="shame" src="shame.mp3"></audio>
     
     <script src="game.js"></script>
 </body>

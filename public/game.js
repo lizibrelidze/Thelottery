@@ -14,6 +14,7 @@ const playersUl = document.getElementById('players');
 const countdown = document.getElementById('countdown');
 const notify = document.getElementById('notify');
 const crowd = document.getElementById('crowd');
+const shame = document.getElementById('shame');
 const leaderboard = document.getElementById('leaderboard');
 const leaderboardList = document.getElementById('leaderboardList');
 const dareSection = document.getElementById('dareSection');
@@ -35,6 +36,8 @@ function playSound(type) {
         notify.play().catch(() => {});
     } else if (type === 'crowd') {
         crowd.play().catch(() => {});
+    } else if (type === 'shame') {
+        shame.play().catch(() => {});
     }
 }
 
@@ -122,7 +125,7 @@ socket.on('newDare', (data) => {
         gameDiv.innerHTML = `
             <h2>🐉 YOU'VE BEEN SELECTED! 🐉</h2>
             <p class="selected">The DragonDare app has chosen you, ${playerName}!</p>
-            <p>Will you accept this challenge and gain 100 points, or chicken out and lose 50 points?</p>
+            <p>Will you accept this challenge and gain 100 points, or chicken out and lose 50 points? Don't hit 0, or you're canceled!</p>
         `;
         playSound('notify');
     } else {
@@ -149,7 +152,7 @@ socket.on('dareResult', (data) => {
         resultClass = 'success';
         playSound('crowd');
     } else {
-        resultMessage = `${data.player} chickened out! -50 points! 🐔 SCARED PERSON!`;
+        resultMessage = `${data.player} chickened out! -50 points! 🐔 Risking cancellation!`;
         resultClass = 'failure';
         playSound('notify');
     }
@@ -165,6 +168,52 @@ socket.on('dareResult', (data) => {
     if (data.player === playerName) {
         myPoints = data.points;
     }
+    
+    // Update players and leaderboard
+    allPlayers = data.players;
+    updatePlayersList();
+    updateLeaderboard();
+});
+
+// Player eliminated event
+socket.on('playerEliminated', (data) => {
+    allPlayers = data.players;
+    updatePlayersList();
+    updateLeaderboard();
+    
+    const isMe = data.player === playerName;
+    
+    gameDiv.innerHTML = `
+        <h2>😱 CANCELED! 😱</h2>
+        <p class="eliminated">${data.player} has been CANCELED!</p>
+        <p>The internet has spoken: "${data.player} flopped hard and is out of the game! 📸 #DragonDare #Canceled"</p>
+        <p class="waiting">${data.remaining} players remain. Next dare incoming...</p>
+    `;
+    
+    playSound('shame');
+    
+    if (isMe) {
+        setTimeout(() => {
+            alert('You’ve been canceled! Your points hit 0, and you’re out of the game!');
+            resetGame();
+        }, 2000);
+    }
+});
+
+// Game over event
+socket.on('gameOver', (data) => {
+    allPlayers = data.players;
+    updatePlayersList();
+    updateLeaderboard();
+    
+    gameDiv.innerHTML = `
+        <h2>🏆 Game Over! 🏆</h2>
+        <p class="winner">${data.winner} is the Ultimate DragonDare Champion!</p>
+        <p>Congrats for surviving the cancel culture storm! 🎉</p>
+        <button onclick="resetGame()">Play Again</button>
+    `;
+    
+    playSound('crowd');
 });
 
 // Leaderboard update event
@@ -222,6 +271,7 @@ function getStatusEmoji(status) {
         case 'brave': return '🦁';
         case 'scared': return '🐔';
         case 'waiting': return '⏳';
+        case 'eliminated': return '😱';
         default: return '⏳';
     }
 }
@@ -232,6 +282,7 @@ function getStatusText(status) {
         case 'brave': return 'BRAVE';
         case 'scared': return 'SCARED';
         case 'waiting': return 'WAITING';
+        case 'eliminated': return 'CANCELED';
         default: return 'WAITING';
     }
 }
@@ -246,7 +297,7 @@ function choose(choice) {
 
 // Get a random player except the current one
 function getRandomPlayerExcept(exceptName) {
-    const availablePlayers = allPlayers.filter(p => p.name !== exceptName);
+    const availablePlayers = allPlayers.filter(p => p.name !== exceptName && p.status !== 'eliminated');
     if (availablePlayers.length === 0) return "Another student";
     return availablePlayers[Math.floor(Math.random() * availablePlayers.length)].name;
 }
