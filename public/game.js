@@ -35,6 +35,26 @@ let isEliminated = false;
 const MIN_PLAYERS = 7;
 const MAX_PLAYERS = 10;
 
+// Helper function to safely get player name
+function getPlayerName(player) {
+    if (typeof player === 'string') {
+        return player;
+    } else if (player && typeof player === 'object' && player.name) {
+        return player.name;
+    } else {
+        console.error('Invalid player object:', player);
+        return 'Unknown Player';
+    }
+}
+
+// Helper function to safely get player points
+function getPlayerPoints(player) {
+    if (typeof player === 'object' && player.points !== undefined) {
+        return player.points;
+    }
+    return 0;
+}
+
 // Sound functions
 function playSound(type) {
     if (type === 'notify') {
@@ -87,8 +107,8 @@ rejectButton.addEventListener('click', () => {
 
 // Update player list when server sends updates
 socket.on('playerUpdate', (data) => {
-    allPlayers = data.players;
-    playerCount.textContent = data.count;
+    allPlayers = data.players || [];
+    playerCount.textContent = data.count || 0;
     requiredPlayers.textContent = data.required || MIN_PLAYERS;
     
     // Update progress bar
@@ -104,7 +124,7 @@ socket.on('playerUpdate', (data) => {
             gameDiv.innerHTML = '<h2>Game Starting Soon!</h2><p>Get ready for DragonDare challenges!</p>';
         }
     } else {
-        if (allPlayers.find(p => p.name === playerName)) {
+        if (allPlayers.find(p => getPlayerName(p) === playerName)) {
             joinSection.style.display = 'none';
             waitingSection.style.display = 'block';
         }
@@ -123,9 +143,11 @@ socket.on('playerUpdate', (data) => {
 
 // Player eliminated event
 socket.on('playerEliminated', (data) => {
-    allPlayers = data.players;
+    allPlayers = data.players || [];
     
-    if (data.eliminatedPlayer === playerName) {
+    const eliminatedPlayerName = getPlayerName(data.eliminatedPlayer);
+    
+    if (eliminatedPlayerName === playerName) {
         // This player was eliminated
         isEliminated = true;
         myPoints = 0;
@@ -148,7 +170,7 @@ socket.on('playerEliminated', (data) => {
         // Another player was eliminated
         gameDiv.innerHTML = `
             <h2>Player Eliminated!</h2>
-            <p class="eliminated">${data.eliminatedPlayer} has been ELIMINATED!</p>
+            <p class="eliminated">${eliminatedPlayerName} has been ELIMINATED!</p>
             <p>They reached 0 points and are out of the game!</p>
             <p class="waiting">Game continues with remaining players...</p>
         `;
@@ -160,10 +182,11 @@ socket.on('playerEliminated', (data) => {
 
 // New dare event
 socket.on('newDare', (data) => {
-    allPlayers = data.players;
+    allPlayers = data.players || [];
     updateLeaderboard();
     
-    const isSelected = playerName === data.selectedPlayer;
+    const selectedPlayerName = getPlayerName(data.selectedPlayer);
+    const isSelected = playerName === selectedPlayerName;
     
     if (isEliminated) {
         // Show spectator view
@@ -171,13 +194,13 @@ socket.on('newDare', (data) => {
         dareSection.style.display = 'none';
         gameDiv.innerHTML = `
             <h2>🎭 Spectator View</h2>
-            <p><strong>${data.selectedPlayer}</strong> has been selected for a dare!</p>
+            <p><strong>${selectedPlayerName}</strong> has been selected for a dare!</p>
             <p class="waiting">Watching from the sidelines...</p>
             <p><em>Dare: ${data.dare}</em></p>
         `;
     } else if (isSelected) {
         // Show dare to selected player
-        selectedPlayerName.textContent = playerName;
+        document.getElementById('selectedPlayerName').textContent = playerName;
         currentDare.textContent = data.dare;
         dareSection.style.display = 'block';
         dareResult.style.display = 'none';
@@ -196,7 +219,7 @@ socket.on('newDare', (data) => {
         spectatorSection.style.display = 'none';
         gameDiv.innerHTML = `
             <h2>Dare in Progress...</h2>
-            <p><strong>${data.selectedPlayer}</strong> has been selected for a dare!</p>
+            <p><strong>${selectedPlayerName}</strong> has been selected for a dare!</p>
             <p class="waiting">Waiting for their response...</p>
             <p><em>Dare: ${data.dare}</em></p>
         `;
@@ -207,15 +230,16 @@ socket.on('newDare', (data) => {
 socket.on('dareResult', (data) => {
     dareSection.style.display = 'none';
     
+    const resultPlayerName = getPlayerName(data.player);
     let resultMessage = '';
     let resultClass = '';
     
     if (data.accepted) {
-        resultMessage = `${data.player} accepted the dare! +100 points! 🎉`;
+        resultMessage = `${resultPlayerName} accepted the dare! +100 points! 🎉`;
         resultClass = 'success';
         playSound('crowd');
     } else {
-        resultMessage = `${data.player} chickened out! -50 points! 🐔`;
+        resultMessage = `${resultPlayerName} chickened out! -50 points! 🐔`;
         resultClass = 'failure';
         playSound('notify');
     }
@@ -224,20 +248,20 @@ socket.on('dareResult', (data) => {
         gameDiv.innerHTML = `
             <h2>🎭 Spectator View - Dare Result</h2>
             <p class="${resultClass}">${resultMessage}</p>
-            <p>${data.player} now has ${data.points} points!</p>
+            <p>${resultPlayerName} now has ${data.points} points!</p>
             <p class="waiting">Watching the competition continue...</p>
         `;
     } else {
         gameDiv.innerHTML = `
             <h2>Dare Result</h2>
             <p class="${resultClass}">${resultMessage}</p>
-            <p>${data.player} now has ${data.points} points!</p>
+            <p>${resultPlayerName} now has ${data.points} points!</p>
             <p class="waiting">Next dare coming up...</p>
         `;
     }
     
     // Update my points if it was me
-    if (data.player === playerName) {
+    if (resultPlayerName === playerName) {
         myPoints = data.points;
     }
 });
@@ -247,9 +271,11 @@ socket.on('gameOver', (data) => {
     dareSection.style.display = 'none';
     spectatorSection.style.display = 'none';
     
+    const winnerName = getPlayerName(data.winner);
+    
     gameDiv.innerHTML = `
         <h2>🏆 GAME OVER! 🏆</h2>
-        <p class="success">Winner: ${data.winner}!</p>
+        <p class="success">Winner: ${winnerName}!</p>
         <p>Final Score: ${data.winnerPoints} points</p>
         <p><em>Congratulations to the DragonDare champion!</em></p>
         <button onclick="resetGame()">Play Again</button>
@@ -260,7 +286,7 @@ socket.on('gameOver', (data) => {
 
 // Leaderboard update event
 socket.on('leaderboardUpdate', (data) => {
-    allPlayers = data.players;
+    allPlayers = data.players || [];
     updateLeaderboard();
 });
 
@@ -269,15 +295,17 @@ function updatePlayersList() {
     playersUl.innerHTML = '';
     allPlayers.forEach(player => {
         const li = document.createElement('li');
-        const isPlayerEliminated = player.points <= 0;
+        const playerNameStr = getPlayerName(player);
+        const playerPoints = getPlayerPoints(player);
+        const isPlayerEliminated = playerPoints <= 0;
         
         if (isPlayerEliminated) {
             li.classList.add('eliminated');
         }
         
         li.innerHTML = `
-            <span class="player-name">${player.name}${isPlayerEliminated ? ' (ELIMINATED)' : ''}</span>
-            <span class="player-points ${isPlayerEliminated ? 'eliminated' : ''}">${player.points} pts</span>
+            <span class="player-name">${playerNameStr}${isPlayerEliminated ? ' (ELIMINATED)' : ''}</span>
+            <span class="player-points ${isPlayerEliminated ? 'eliminated' : ''}">${playerPoints} pts</span>
             <span class="player-status">${getStatusEmoji(player.status, isPlayerEliminated)}</span>
         `;
         playersUl.appendChild(li);
@@ -292,16 +320,21 @@ function updateLeaderboard() {
     
     // Sort players by points (active players first, then eliminated players)
     const sortedPlayers = [...allPlayers].sort((a, b) => {
-        if (a.points <= 0 && b.points > 0) return 1;
-        if (a.points > 0 && b.points <= 0) return -1;
-        return b.points - a.points;
+        const aPoints = getPlayerPoints(a);
+        const bPoints = getPlayerPoints(b);
+        
+        if (aPoints <= 0 && bPoints > 0) return 1;
+        if (aPoints > 0 && bPoints <= 0) return -1;
+        return bPoints - aPoints;
     });
     
     sortedPlayers.forEach((player, index) => {
         const li = document.createElement('li');
         const rank = index + 1;
-        const isMe = player.name === playerName;
-        const isPlayerEliminated = player.points <= 0;
+        const playerNameStr = getPlayerName(player);
+        const playerPoints = getPlayerPoints(player);
+        const isMe = playerNameStr === playerName;
+        const isPlayerEliminated = playerPoints <= 0;
         
         li.className = isMe ? 'my-rank' : '';
         if (isPlayerEliminated) {
@@ -323,8 +356,8 @@ function updateLeaderboard() {
         
         li.innerHTML = `
             <span class="rank">${rankEmoji}</span>
-            <span class="player-name">${player.name}${isPlayerEliminated ? ' (OUT)' : ''}</span>
-            <span class="player-points ${isPlayerEliminated ? 'eliminated' : ''}">${player.points} pts</span>
+            <span class="player-name">${playerNameStr}${isPlayerEliminated ? ' (OUT)' : ''}</span>
+            <span class="player-points ${isPlayerEliminated ? 'eliminated' : ''}">${playerPoints} pts</span>
             <span class="player-status">${getStatusEmoji(player.status, isPlayerEliminated)} ${getStatusText(player.status, isPlayerEliminated)}</span>
         `;
         
@@ -366,9 +399,16 @@ function choose(choice) {
 
 // Get a random player except the current one
 function getRandomPlayerExcept(exceptName) {
-    const availablePlayers = allPlayers.filter(p => p.name !== exceptName && p.points > 0);
+    const availablePlayers = allPlayers.filter(p => {
+        const pName = getPlayerName(p);
+        const pPoints = getPlayerPoints(p);
+        return pName !== exceptName && pPoints > 0;
+    });
+    
     if (availablePlayers.length === 0) return "Another student";
-    return availablePlayers[Math.floor(Math.random() * availablePlayers.length)].name;
+    
+    const randomPlayer = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
+    return getPlayerName(randomPlayer);
 }
 
 // Reset the game
