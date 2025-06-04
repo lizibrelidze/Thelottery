@@ -163,6 +163,12 @@ socket.on('dareResult', (data) => {
         <p>${data.player} now has ${data.points} points!</p>
         <p class="waiting">Next dare coming up...</p>
     `;
+    gameDiv.innerHTML += `
+    <div class="fake-post">
+        <p>🔥 @DragonDareApp: "${data.player} just got CANCELED! 😭 Total loser vibes! #EpicFail #DragonDare"</p>
+        <p>💬 1.2K | 🔄 850 | ❤️ 3.4K</p>
+    </div>
+`;
     
     // Update my points if it was me
     if (data.player === playerName) {
@@ -300,6 +306,31 @@ function getRandomPlayerExcept(exceptName) {
     const availablePlayers = allPlayers.filter(p => p.name !== exceptName && p.status !== 'eliminated');
     if (availablePlayers.length === 0) return "Another student";
     return availablePlayers[Math.floor(Math.random() * availablePlayers.length)].name;
+}
+
+
+function triggerCancelAnimation() {
+    const cancelOverlay = document.createElement('div');
+    cancelOverlay.className = 'cancel-overlay';
+    document.body.appendChild(cancelOverlay);
+
+    // Add particles
+    const particleContainer = document.createElement('div');
+    particleContainer.className = 'cancel-particles';
+    for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.animationDelay = `${Math.random() * 1.5}s`;
+        particleContainer.appendChild(particle);
+    }
+    document.body.appendChild(particleContainer);
+
+    // Remove overlay and particles after animation
+    setTimeout(() => {
+        cancelOverlay.remove();
+        particleContainer.remove();
+    }, 2000);
 }
 
 // Reset the game
