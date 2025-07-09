@@ -1,6 +1,6 @@
 DragonDare - The Lottery Game
 
-An interactive multiplayer game inspired by "The Lottery," set during Drexel University's Welcome Week 2025. The game requires 3 players to join before it starts automatically, randomly selecting one player for "the lottery."
+An interactive multiplayer game inspired by "The Lottery," set during Drexel University's Welcome Week 2025. The game requires 5 players to join before it starts automatically, randomly selecting one player for "the lottery."
 
 Live Demo:
 https://serene-hollows-48056-21177addadc0.herokuapp.com/
