@@ -1,84 +1,97 @@
-# DragonDare - The Lottery Game
+DragonDare - The Lottery Game
 
-An interactive multiplayer game based on "The Lottery" theme, set in Drexel University's Welcome Week 2025. The game requires 3 players to join before it starts automatically, selecting one player randomly for "the lottery."
+An interactive multiplayer game inspired by "The Lottery," set during Drexel University's Welcome Week 2025. The game requires 3 players to join before it starts automatically, randomly selecting one player for "the lottery."
 
-## How to Run the Game
+Live Demo:
+https://serene-hollows-48056-21177addadc0.herokuapp.com/
 
-### Prerequisites
+Table of Contents
+
+- How to Run the Game
+- Deploying to a Hosting Service
+- How the Game Works
+- File Structure
+- Game Mechanics
+- Adding Custom Sounds and Images
+- Customizing the Game
+- Live Demo
+
+How to Run the Game
+
+Prerequisites
+
 - Node.js (v14 or higher)
 - npm (Node Package Manager)
 
-### Installation
+Installation
 
 1. Clone this repository:
-```
-git clone https://github.com/yourusername/dragondare-game.git
-cd dragondare-game
-```
+   git clone https://github.com/lizibrelidze/dragondare-game.git
+   cd dragondare-game
 
 2. Install dependencies:
-```
-npm install
-```
+   npm install
 
 3. Start the server:
-```
-npm start
-```
+   npm start
 
-4. Open your browser and navigate to:
-```
-http://localhost:3000
-```
+4. Open your browser and go to:
+   http://localhost:3000
 
-### Deploying to a Hosting Service
+Deploying to a Hosting Service
 
-#### GitHub Pages Setup
-Since GitHub Pages only hosts static content, you'll need a different approach:
+Node.js-Friendly Hosting
 
-1. Consider using a service like Heroku, Glitch, or Render that can host Node.js applications.
+- Heroku (already deployed!):
+  Visit: https://serene-hollows-48056-21177addadc0.herokuapp.com/
 
-2. For Heroku:
-   - Install the Heroku CLI
-   - Login to Heroku: `heroku login`
-   - Create a new app: `heroku create your-app-name`
-   - Push to Heroku: `git push heroku main`
+  Or to deploy your own:
+  1. Install the Heroku CLI
+  2. Login: heroku login
+  3. Create app: heroku create your-app-name
+  4. Push: git push heroku main
 
-3. For Glitch:
-   - Create a new Glitch project
-   - Import your GitHub repository
+- Glitch:
+  1. Create a new Glitch project
+  2. Import your GitHub repo
 
-## How the Game Works
+How the Game Works
 
-1. Three players need to join by entering their names
-2. Once 3 players have joined, there's a 5-second countdown
-3. The game randomly selects one player for "the lottery"
-4. All players navigate through the story, but the selected player's choices have special significance
-5. The game incorporates other players' names into the narrative to create a personalized experience
+- Three players join by entering their names
+- Once 3 players have joined, a 5-second countdown starts
+- The game randomly selects one player for "the lottery"
+- All players experience the story, but the selected player's choices are especially significant
+- Other players' names are woven into the narrative for a personalized experience
 
-## File Structure
+File Structure
 
-- `server.js` - Main server file that handles player connections and game state
-- `package.json` - Project configuration and dependencies
-- `public/index.html` - Main HTML file for the client
-- `public/game.js` - Client-side game logic
-- `public/` directory - Contains static assets like images and sounds
+File/Directory         Purpose
+---------------------  -----------------------------------------------------
+server.js              Main server file (player connections, game state)
+package.json           Project configuration and dependencies
+public/index.html      Main HTML file for the client
+public/game.js         Client-side game logic
+public/                Static assets (images, sounds)
 
-## Game Mechanics
+Game Mechanics
 
-- **Player Selection**: One random player is selected for "the lottery" when the game starts.
-- **Real-time Updates**: All players see who joins and who is selected.
-- **Shared Narrative**: The story dynamically includes other players' names.
-- **Multiple Endings**: Depending on choices, players can reach good, bad, or neutral endings.
+- Player Selection: One random player is chosen for "the lottery" at game start.
+- Real-time Updates: All players see who joins and who is selected.
+- Shared Narrative: The story dynamically includes players' names.
+- Multiple Endings: Choices lead to good, bad, or neutral endings.
 
-## Adding Custom Sounds and Images
+Adding Custom Sounds and Images
 
-1. Place your audio files (like `notify.mp3` and `crowd.mp3`) in the `public` directory
-2. Add any image files you want to reference in the `public` directory
-3. Update the HTML to reference your image files
+1. Place audio files (e.g., notify.mp3, crowd.mp3) in public/
+2. Add image files to public/
+3. Update HTML to reference your images
 
-## Customizing the Game
+Customizing the Game
 
-- Modify the story in `game.js`
-- Change the styling in `index.html`
-- Adjust the required player count in `server.js`
+- Edit the story in game.js
+- Change styles in index.html
+- Adjust required player count in server.js
+
+Live Demo
+
+https://serene-hollows-48056-21177addadc0.herokuapp.com/
