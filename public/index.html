@@ -6,293 +6,7 @@
     <title>DragonDare: Drexel's Viral Challenge</title>
     <script src="/socket.io/socket.io.js"></script>
     <style>
-        :root {
-            --drexel-blue: #003087;
-            --drexel-gold: #ffc107;
-            --dark-blue: #001a4d;
-            --success-green: #28a745;
-            --danger-red: #dc3545;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--drexel-blue);
-            color: white;
-            background-image: linear-gradient(to bottom, var(--dark-blue), var(--drexel-blue));
-            min-height: 100vh;
-        }
-        
-        .header {
-            padding: 20px 0;
-            text-align: center;
-            background-color: rgba(0, 0, 0, 0.4);
-        }
-        
-        .logo {
-            max-width: 200px;
-            margin-bottom: 10px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 20px;
-        }
-        
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .fake-post {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 10px;
-            border-left: 4px solid var(--danger-red);
-            font-size: 0.9em;
-        }
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .card {
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            border: 2px solid rgba(255, 193, 7, 0.3);
-        }
-        
-        h1, h2, h3 {
-            color: var(--drexel-gold);
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-            margin-top: 0;
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-        
-        p {
-            font-size: 18px;
-            line-height: 1.6;
-        }
-        
-        button {
-            background-color: var(--drexel-gold);
-            color: var(--drexel-blue);
-            border: none;
-            padding: 12px 24px;
-            margin: 10px 5px;
-            cursor: pointer;
-            border-radius: 50px;
-            font-size: 16px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-        }
-        
-        button:hover {
-            background-color: #e0a800;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
-        }
-        
-        button.accept {
-            background-color: var(--success-green);
-            color: white;
-        }
-        
-        button.accept:hover {
-            background-color: #218838;
-        }
-        
-        button.reject {
-            background-color: var(--danger-red);
-            color: white;
-        }
-        
-        button.reject:hover {
-            background-color: #c82333;
-        }
-        
-        input {
-            padding: 12px 20px;
-            margin: 10px 0;
-            border-radius: 50px;
-            border: 2px solid var(--drexel-gold);
-            font-size: 16px;
-            width: 80%;
-            max-width: 300px;
-            background-color: rgba(255, 255, 255, 0.9);
-        }
-        
-        .selected {
-            color: var(--drexel-gold);
-            font-weight: bold;
-            text-shadow: 0 0 10px rgba(255, 193, 7, 0.7);
-            font-size: 1.2em;
-        }
-        
-        .waiting {
-            font-style: italic;
-            color: #cccccc;
-        }
-        
-        .success {
-            color: var(--success-green);
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-        
-        .failure {
-            color: var(--danger-red);
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-        
-        .eliminated {
-            color: #ff4500;
-            font-weight: bold;
-            font-size: 1.4em;
-            text-shadow: 0 0 10px rgba(255, 69, 0, 0.7);
-            animation: shake 0.5s;
-        }
-        
-        .winner {
-            color: var(--drexel-gold);
-            font-weight: bold;
-            font-size: 1.4em;
-            text-shadow: 0 0 10px rgba(255, 193, 7, 0.7);
-            animation: pulse 2s infinite;
-        }
-        
-        #countdown {
-            font-size: 32px;
-            font-weight: bold;
-            color: var(--drexel-gold);
-            margin: 20px 0;
-            text-shadow: 0 0 10px rgba(255, 193, 7, 0.7);
-        }
-        
-        .campus-img {
-            width: 100%;
-            max-width: 700px;
-            border-radius: 10px;
-            margin: 15px 0;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            border: 3px solid var(--drexel-gold);
-        }
-        
-        .player-list, .leaderboard-list {
-            list-style-type: none;
-            padding: 0;
-            text-align: left;
-        }
-        
-        .player-list li, .leaderboard-list li {
-            padding: 12px 15px;
-            margin: 8px 0;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 4px solid var(--drexel-gold);
-        }
-        
-        .leaderboard-list li.my-rank {
-            background-color: rgba(255, 193, 7, 0.2);
-            border-left-color: var(--drexel-gold);
-            font-weight: bold;
-        }
-        
-        .player-name {
-            flex: 1;
-        }
-        
-        .player-points {
-            font-weight: bold;
-            color: var(--drexel-gold);
-        }
-        
-        .player-status {
-            font-size: 0.9em;
-        }
-        
-        .rank {
-            font-size: 1.2em;
-            margin-right: 10px;
-        }
-        
-        .game-progress {
-            height: 10px;
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 5px;
-            margin: 20px 0;
-            overflow: hidden;
-        }
-        
-        .progress-bar {
-            height: 100%;
-            background-color: var(--drexel-gold);
-            width: 0%;
-            transition: width 0.5s ease;
-        }
-        
-        .dare-section {
-            background: linear-gradient(135deg, var(--danger-red), #ff6b6b);
-            border: 3px solid var(--drexel-gold);
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { box-shadow: 0 0 20px rgba(255, 193, 7, 0.5); }
-            50% { box-shadow: 0 0 40px rgba(255, 193, 7, 0.8); }
-            100% { box-shadow: 0 0 20px rgba(255, 193, 7, 0.5); }
-        }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
-        }
-        
-        .dare-buttons {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                grid-template-columns: 1fr;
-                padding: 10px;
-            }
-            
-            .sidebar {
-                order: -1;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .dare-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-        }
+        /* ... (keep your CSS as before) ... */
     </style>
 </head>
 <body>
@@ -306,16 +20,23 @@
         <div class="main-content">
             <div class="card" id="game">
                 <h2>Welcome to Drexel University, 2025!</h2>
-                <p>Everyone's hyped about "DragonDare," the viral app sweeping through CCI freshmen. Take on daring challenges, earn points, and avoid being canceled! Reach 0 points, and you're out with a viral shaming!</p>
-                <p><strong>🎯 Starting Points: 100 | Accept Dare: +100 | Reject Dare: -50 | Reach 0: CANCELED! 🎯</strong></p>
-                
+                <p>
+                    <strong>Why do we do things just because others do?</strong>
+                    <br>
+                    Teenagers and young adults are especially likely to take risks or make questionable choices when surrounded by peers. This is called <b>peer pressure</b>—and it can lead to both fun memories and regrettable decisions.
+                </p>
+                <p>
+                    <em>DragonDare</em> is inspired by Shirley Jackson's classic story <b>"The Lottery"</b>, where ordinary people follow the crowd into dangerous territory. This web game was created for ENGL 112 by <b>Lizi Brelidze</b> and <b>Ruhma Hashmi</b> to help us reflect on how group dynamics can influence our choices.
+                </p>
+                <p>
+                    <strong>🎯 Starting Points: 100 | Accept Dare: +100 | Reject Dare: -50 | Reach 0: CANCELED! 🎯</strong>
+                </p>
                 <div id="joinSection">
                     <h3>Ready to Join the Challenge?</h3>
                     <p>Enter your DragonTag to join the game:</p>
                     <input id="playerName" type="text" placeholder="Your name" maxlength="20">
                     <button id="joinButton">Join the Dare</button>
                 </div>
-                
                 <div id="waitingSection" style="display: none;">
                     <h3>Gathering Dragon Daredevils...</h3>
                     <p class="waiting">Waiting for more players to join the challenge!</p>
@@ -328,7 +49,6 @@
                     <img src="/assets/drexelPanorama.jpg" alt="Drexel Campus Panorama" class="campus-img">
                 </div>
             </div>
-            
             <div id="dareSection" class="card dare-section" style="display: none;">
                 <h2>🐉 DRAGONDARE CHALLENGE 🐉</h2>
                 <p class="selected">You've been selected, <span id="selectedPlayerName"></span>!</p>
@@ -340,30 +60,33 @@
                     <button id="rejectDare" class="reject">❌ Reject Dare (-50 pts)</button>
                 </div>
             </div>
-            
             <div id="dareResult" class="card" style="display: none;">
                 <h3>Dare Result</h3>
                 <div id="resultContent"></div>
             </div>
         </div>
-        
         <div class="sidebar">
             <div id="leaderboard" class="card" style="display: none;">
                 <h3>🏆 Leaderboard</h3>
                 <ul id="leaderboardList" class="leaderboard-list"></ul>
             </div>
-            
             <div id="playersList" class="card" style="display: none;">
                 <h3>Dragon Challengers</h3>
                 <ul id="players" class="player-list"></ul>
             </div>
+            <div class="card" style="margin-top:20px;">
+                <h3>Did You Know?</h3>
+                <p>
+                    Studies show that teens are far more likely to take risks when friends are watching. 
+                    <br>
+                    <em>Think for yourself—don't let the crowd decide your fate!</em>
+                </p>
+            </div>
         </div>
     </div>
-    
     <audio id="notify" src="notify.mp3"></audio>
     <audio id="crowd" src="crowd.mp3"></audio>
     <audio id="shame" src="shame.mp3"></audio>
-    
     <script src="game.js"></script>
 </body>
 </html>

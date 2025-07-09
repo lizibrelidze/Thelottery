@@ -11,10 +11,6 @@ const playerCount = document.getElementById('playerCount');
 const requiredPlayers = document.getElementById('requiredPlayers');
 const playersList = document.getElementById('playersList');
 const playersUl = document.getElementById('players');
-const countdown = document.getElementById('countdown');
-const notify = document.getElementById('notify');
-const crowd = document.getElementById('crowd');
-const shame = document.getElementById('shame');
 const leaderboard = document.getElementById('leaderboard');
 const leaderboardList = document.getElementById('leaderboardList');
 const dareSection = document.getElementById('dareSection');
@@ -23,6 +19,9 @@ const selectedPlayerName = document.getElementById('selectedPlayerName');
 const acceptButton = document.getElementById('acceptDare');
 const rejectButton = document.getElementById('rejectDare');
 const dareResult = document.getElementById('dareResult');
+const notify = document.getElementById('notify');
+const crowd = document.getElementById('crowd');
+const shame = document.getElementById('shame');
 
 // Game state
 let playerName = "";
@@ -81,14 +80,24 @@ socket.on('playerUpdate', (data) => {
     allPlayers = data.players;
     playerCount.textContent = data.count;
     requiredPlayers.textContent = data.required;
-    
+
     // Show join/waiting sections appropriately
     if (data.count >= data.required) {
         joinSection.style.display = 'none';
         waitingSection.style.display = 'none';
         if (!isGameStarted) {
             isGameStarted = true;
-            gameDiv.innerHTML = '<h2>Game Starting Soon!</h2><p>Get ready for DragonDare challenges!</p>';
+            gameDiv.innerHTML = `
+                <h2>Game Starting Soon!</h2>
+                <p>Get ready for DragonDare challenges!</p>
+                <div class="card reflection-card">
+                    <h3>Think About It</h3>
+                    <p>
+                        Why do people sometimes do things in groups that they'd never do alone? 
+                        Peer pressure is powerful—let's see how it works in this game!
+                    </p>
+                </div>
+            `;
         }
     } else {
         if (allPlayers.find(p => p.name === playerName)) {
@@ -96,11 +105,11 @@ socket.on('playerUpdate', (data) => {
             waitingSection.style.display = 'block';
         }
     }
-    
+
     // Update player list and leaderboard
     updatePlayersList();
     updateLeaderboard();
-    
+
     // Show player list and leaderboard if we have players
     if (data.count > 0) {
         playersList.style.display = 'block';
@@ -112,20 +121,26 @@ socket.on('playerUpdate', (data) => {
 socket.on('newDare', (data) => {
     allPlayers = data.players;
     updateLeaderboard();
-    
+
     const isSelected = playerName === data.selectedPlayer;
-    
+
     if (isSelected) {
         // Show dare to selected player
         selectedPlayerName.textContent = playerName;
         currentDare.textContent = data.dare;
         dareSection.style.display = 'block';
         dareResult.style.display = 'none';
-        
+
         gameDiv.innerHTML = `
             <h2>🐉 YOU'VE BEEN SELECTED! 🐉</h2>
             <p class="selected">The DragonDare app has chosen you, ${playerName}!</p>
             <p>Will you accept this challenge and gain 100 points, or chicken out and lose 50 points? Don't hit 0, or you're canceled!</p>
+            <div class="card reflection-card">
+                <h3>Reflection</h3>
+                <p>
+                    Do you feel pressured to accept the dare? Would you make the same choice if you were alone?
+                </p>
+            </div>
         `;
         playSound('notify');
     } else {
@@ -136,6 +151,12 @@ socket.on('newDare', (data) => {
             <p><strong>${data.selectedPlayer}</strong> has been selected for a dare!</p>
             <p class="waiting">Waiting for their response...</p>
             <p><em>Dare: ${data.dare}</em></p>
+            <div class="card reflection-card">
+                <h3>Reflection</h3>
+                <p>
+                    If you were chosen, what would you do? How does seeing others take risks affect your own choices?
+                </p>
+            </div>
         `;
     }
 });
@@ -143,10 +164,10 @@ socket.on('newDare', (data) => {
 // Dare result event
 socket.on('dareResult', (data) => {
     dareSection.style.display = 'none';
-    
+
     let resultMessage = '';
     let resultClass = '';
-    
+
     if (data.accepted) {
         resultMessage = `${data.player} accepted the dare! +100 points! 🎉`;
         resultClass = 'success';
@@ -156,26 +177,28 @@ socket.on('dareResult', (data) => {
         resultClass = 'failure';
         playSound('notify');
     }
-    
+
     gameDiv.innerHTML = `
         <h2>Dare Result</h2>
         <p class="${resultClass}">${resultMessage}</p>
         <p>${data.player} now has ${data.points} points!</p>
         <p class="waiting">Next dare coming up...</p>
+        <div class="fake-post">
+            <p>🔥 @DragonDareApp: "${data.player} just got CANCELED! 😭 Total loser vibes! #EpicFail #DragonDare"</p>
+            <p>💬 1.2K | 🔄 850 | ❤️ 3.4K</p>
+        </div>
+        <div class="reflection-card card">
+            <h3>Think About It</h3>
+            <p>
+                Did you feel pressured by the group to act a certain way? What would you do if you were the only one watching?
+            </p>
+        </div>
     `;
-    gameDiv.innerHTML += `
-    <div class="fake-post">
-        <p>🔥 @DragonDareApp: "${data.player} just got CANCELED! 😭 Total loser vibes! #EpicFail #DragonDare"</p>
-        <p>💬 1.2K | 🔄 850 | ❤️ 3.4K</p>
-    </div>
-`;
-    
-    // Update my points if it was me
+
     if (data.player === playerName) {
         myPoints = data.points;
     }
-    
-    // Update players and leaderboard
+
     allPlayers = data.players;
     updatePlayersList();
     updateLeaderboard();
@@ -186,18 +209,24 @@ socket.on('playerEliminated', (data) => {
     allPlayers = data.players;
     updatePlayersList();
     updateLeaderboard();
-    
+
     const isMe = data.player === playerName;
-    
+
     gameDiv.innerHTML = `
         <h2>😱 CANCELED! 😱</h2>
         <p class="eliminated">${data.player} has been CANCELED!</p>
         <p>The internet has spoken: "${data.player} flopped hard and is out of the game! 📸 #DragonDare #Canceled"</p>
         <p class="waiting">${data.remaining} players remain. Next dare incoming...</p>
+        <div class="reflection-card card">
+            <h3>Reflection</h3>
+            <p>
+                How did it feel to be eliminated? What could you do differently next time?
+            </p>
+        </div>
     `;
-    
+
     playSound('shame');
-    
+
     if (isMe) {
         setTimeout(() => {
             alert('You’ve been canceled! Your points hit 0, and you’re out of the game!');
@@ -211,14 +240,22 @@ socket.on('gameOver', (data) => {
     allPlayers = data.players;
     updatePlayersList();
     updateLeaderboard();
-    
+
     gameDiv.innerHTML = `
         <h2>🏆 Game Over! 🏆</h2>
         <p class="winner">${data.winner} is the Ultimate DragonDare Champion!</p>
         <p>Congrats for surviving the cancel culture storm! 🎉</p>
+        <div class="card reflection-card">
+            <h3>What Did We Learn?</h3>
+            <ul>
+                <li>Peer pressure can make us do things we might not do alone.</li>
+                <li>It's okay to say "no"—even if everyone else says "yes."</li>
+                <li>Think about the consequences before following the crowd.</li>
+            </ul>
+            <p><em>This game was inspired by "The Lottery" and created for ENGL 112 by Lizi Brelidze and Ruhma Hashmi.</em></p>
+        </div>
         <button onclick="resetGame()">Play Again</button>
     `;
-    
     playSound('crowd');
 });
 
@@ -245,28 +282,28 @@ function updatePlayersList() {
 // Update leaderboard
 function updateLeaderboard() {
     if (!leaderboardList) return;
-    
+
     leaderboardList.innerHTML = '';
     allPlayers.forEach((player, index) => {
         const li = document.createElement('li');
         const rank = index + 1;
         const isMe = player.name === playerName;
-        
+
         li.className = isMe ? 'my-rank' : '';
-        
+
         let rankEmoji = '';
         if (rank === 1) rankEmoji = '🥇';
         else if (rank === 2) rankEmoji = '🥈';
         else if (rank === 3) rankEmoji = '🥉';
         else rankEmoji = `${rank}.`;
-        
+
         li.innerHTML = `
             <span class="rank">${rankEmoji}</span>
             <span class="player-name">${player.name}</span>
             <span class="player-points">${player.points} pts</span>
             <span class="player-status">${getStatusEmoji(player.status)} ${getStatusText(player.status)}</span>
         `;
-        
+
         leaderboardList.appendChild(li);
     });
 }
@@ -299,38 +336,6 @@ function choose(choice) {
         playerName: playerName,
         choice: choice
     });
-}
-
-// Get a random player except the current one
-function getRandomPlayerExcept(exceptName) {
-    const availablePlayers = allPlayers.filter(p => p.name !== exceptName && p.status !== 'eliminated');
-    if (availablePlayers.length === 0) return "Another student";
-    return availablePlayers[Math.floor(Math.random() * availablePlayers.length)].name;
-}
-
-
-function triggerCancelAnimation() {
-    const cancelOverlay = document.createElement('div');
-    cancelOverlay.className = 'cancel-overlay';
-    document.body.appendChild(cancelOverlay);
-
-    // Add particles
-    const particleContainer = document.createElement('div');
-    particleContainer.className = 'cancel-particles';
-    for (let i = 0; i < 20; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        particle.style.left = `${Math.random() * 100}%`;
-        particle.style.animationDelay = `${Math.random() * 1.5}s`;
-        particleContainer.appendChild(particle);
-    }
-    document.body.appendChild(particleContainer);
-
-    // Remove overlay and particles after animation
-    setTimeout(() => {
-        cancelOverlay.remove();
-        particleContainer.remove();
-    }, 2000);
 }
 
 // Reset the game

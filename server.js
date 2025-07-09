@@ -8,7 +8,6 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// Serve static files from the public directory
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Game state
@@ -32,21 +31,20 @@ io.on('connection', (socket) => {
         const player = {
             id: socket.id,
             name: playerName,
-            points: 100, // Start with 100 points
+            points: 100,
             status: 'waiting'
         };
-        
+
         players.push(player);
         console.log(`${playerName} joined! Players: ${players.length}/${REQUIRED_PLAYERS}`);
-        
-        // Broadcast updated player list to all clients
+
         io.emit('playerUpdate', {
             players: players,
             count: players.length,
             required: REQUIRED_PLAYERS
         });
-        
-        // Start game if we have enough players
+
+        // Start game if enough players
         if (players.length >= REQUIRED_PLAYERS && !gameInProgress) {
             gameInProgress = true;
             startNewRound();
@@ -68,18 +66,47 @@ io.on('connection', (socket) => {
             console.log(`${player.name} rejected the dare! -50 points`);
         }
 
+        // Check for elimination
+        if (player.points <= 0) {
+            player.status = 'eliminated';
+            io.emit('playerEliminated', {
+                player: player.name,
+                players: players,
+                remaining: players.filter(p => p.points > 0).length
+            });
+        }
+
+        // Remove eliminated players from the game
+        players = players.filter(p => p.points > 0);
+
         // Broadcast the result
         io.emit('dareResult', {
             player: player.name,
             accepted: data.accepted,
             points: player.points,
-            status: player.status
+            status: player.status,
+            players: players.sort((a, b) => b.points - a.points)
         });
 
         // Update leaderboard
         io.emit('leaderboardUpdate', {
             players: players.sort((a, b) => b.points - a.points)
         });
+
+        // Check for game over
+        if (players.length === 1) {
+            gameInProgress = false;
+            io.emit('gameOver', {
+                winner: players[0].name,
+                players: players
+            });
+            return;
+        } else if (players.length < REQUIRED_PLAYERS) {
+            // Not enough to continue, but not a winner yet
+            gameInProgress = false;
+            currentSelectedPlayer = null;
+            return;
+        }
 
         // Start next round after 3 seconds
         setTimeout(() => {
@@ -93,28 +120,26 @@ io.on('connection', (socket) => {
         if (index !== -1) {
             console.log(`${players[index].name} disconnected`);
             players.splice(index, 1);
-            
+
             // Reset game if not enough players
             if (players.length < REQUIRED_PLAYERS) {
                 gameInProgress = false;
                 currentSelectedPlayer = null;
             }
-            
-            // Update remaining players
+
             io.emit('playerUpdate', {
                 players: players,
                 count: players.length,
                 required: REQUIRED_PLAYERS
             });
 
-            // Update leaderboard
             io.emit('leaderboardUpdate', {
                 players: players.sort((a, b) => b.points - a.points)
             });
         }
     });
 
-    // Game choice made by a player (keep for story progression)
+    // Game choice made by a player (for story progression)
     socket.on('playerChoice', (data) => {
         io.emit('gameUpdate', {
             player: data.playerName,
@@ -133,9 +158,9 @@ function startNewRound() {
     // Select a random player for the dare
     const selectedPlayerIndex = Math.floor(Math.random() * players.length);
     currentSelectedPlayer = players[selectedPlayerIndex].name;
-    
+
     console.log(`New round! Selected player: ${currentSelectedPlayer}`);
-    
+
     // Generate random dare
     const dares = [
         "Post a video of yourself doing the Drexel Dragon dance in the DAC!",
@@ -149,9 +174,9 @@ function startNewRound() {
         "Sing 'Happy Birthday' to a random stranger on campus!",
         "Do the 'floss' dance in front of the Drexel library!"
     ];
-    
+
     const randomDare = dares[Math.floor(Math.random() * dares.length)];
-    
+
     // Send dare to all players
     io.emit('newDare', {
         selectedPlayer: currentSelectedPlayer,
